@@ -57,6 +57,6 @@ EOS
   run_mirth_command $import_channels_script
   cat $import_channels_script
   run_mirth_command $mirth_import_script
-  [[ ! ${IS_AWS} ]] && mysql -h ${MIRTH_MYSQL_HOST} -u${MIRTH_MYSQL_USERNAME} -p${MIRTH_MYSQL_PASSWORD} ${MIRTH_MYSQL_DBNAME} -e "insert into person_preference (PERSON_ID,NAME,VALUE) values (1,'firstlogin','false');"
+  ! ${IS_AWS} && mysql -h ${MIRTH_MYSQL_HOST} -u${MIRTH_MYSQL_USERNAME} -p${MIRTH_MYSQL_PASSWORD} ${MIRTH_MYSQL_DBNAME} -e "insert into person_preference (PERSON_ID,NAME,VALUE) values (1,'firstlogin','false');"
 ) &
 sleep 60 && exec /opt/mirthconnect/mcserver
