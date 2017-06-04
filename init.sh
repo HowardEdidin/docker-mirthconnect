@@ -8,7 +8,9 @@ if [[ $? -eq 0 ]]; then
 fi
 
 function get_param() {
-  param=$(aws ssm get-parameters --names $1 --with-decryption | jq -r '.Parameters[0].Value')
+  param=""
+  ssm_param=$(aws ssm get-parameters --names $1 --with-decryption | jq -r '.Parameters[0].Value' | tr -d '[:space:]')
+  [[ $? -eq 0 ]] && [[ -n "${ssm_param}" ]] && [[ ! "${ssm_param}" == "null" ]] && param=$ssm_param
 }
 
 function run_mirth_command() {
@@ -21,7 +23,7 @@ MIRTH_MYSQL_USERNAME=${param:-mirth}
 get_param 'MIRTH_MYSQL_PASSWORD'
 MIRTH_MYSQL_PASSWORD=${param:-password}
 get_param 'MIRTH_MYSQL_DBNAME'
-MIRTH_MYSQL_DBNAME=${param:-mirth-test}
+MIRTH_MYSQL_DBNAME=${param:-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)}
 get_param 'MIRTH_ADMIN_USERNAME'
 MIRTH_ADMIN_USERNAME=${param:-admin}
 get_param 'MIRTH_ADMIN_PASSWORD'
@@ -57,6 +59,7 @@ EOS
   run_mirth_command $import_channels_script
   cat $import_channels_script
   run_mirth_command $mirth_import_script
-  ! ${IS_AWS} && mysql -h ${MIRTH_MYSQL_HOST} -u${MIRTH_MYSQL_USERNAME} -p${MIRTH_MYSQL_PASSWORD} ${MIRTH_MYSQL_DBNAME} -e "insert into person_preference (PERSON_ID,NAME,VALUE) values (1,'firstlogin','false');"
+  ! ${IS_AWS} && mysql -h ${MIRTH_MYSQL_HOST} -u${MIRTH_MYSQL_USERNAME} -p"${MIRTH_MYSQL_PASSWORD}" ${MIRTH_MYSQL_DBNAME} -e "insert into person_preference (PERSON_ID,NAME,VALUE) values (1,'firstlogin','false');"
 ) &
+sleep 10 && mysql -h ${MIRTH_MYSQL_HOST} -u${MIRTH_MYSQL_USERNAME} -p"${MIRTH_MYSQL_PASSWORD}" -e "create database ${MIRTH_MYSQL_DBNAME};"
 sleep 60 && exec /opt/mirthconnect/mcserver
