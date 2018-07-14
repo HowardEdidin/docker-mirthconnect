@@ -15,8 +15,8 @@ services:
     build: .
     volumes:
       - ./import:/opt/import
-    links:
-      - mirth-database:mysql
+    # links:
+     # - mirth-database:mysql
     depends_on:
       - mirth-database
   haproxy:
@@ -26,7 +26,7 @@ services:
       - 6662:6662
       - 8080:8080
       - 8443:8443
-    links:
-      - mirth-connect:mirth
+   # links:
+    #  - mirth-connect:mirth
     depends_on:
       - mirth-connect
