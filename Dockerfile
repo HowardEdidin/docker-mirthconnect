@@ -1,6 +1,6 @@
 FROM amazonlinux
 
-ENV MIRTH_CONNECT_VERSION 3.5.0.8232.b2153
+ENV MIRTH_CONNECT_VERSION 3.6.0.b2287
 
 RUN yum install -y findutils wget java-1.8.0-openjdk mysql56 http://downloads.mirthcorp.com/connect/$MIRTH_CONNECT_VERSION/mirthconnect-$MIRTH_CONNECT_VERSION-linux.rpm jq aws-cli
 
